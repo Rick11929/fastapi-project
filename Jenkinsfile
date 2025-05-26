@@ -19,12 +19,12 @@ pipeline {
                     // 创建并激活虚拟环境
                     bat '''
                         python -m venv venv
-                        if not exist venv\Scripts\activate.bat (
+                        if not exist venv\\Scripts\\activate.bat (
                             echo Virtual environment creation failed!
                             exit 1
                         )
                         timeout /t 5
-                        call venv\Scripts\activate.bat
+                        call venv\\Scripts\\activate.bat
                         if errorlevel 1 (
                             echo Virtual environment activation failed!
                             exit 1
@@ -42,7 +42,7 @@ pipeline {
                 script {
                     // 使用虚拟环境运行测试
                     bat '''
-                        call venv\Scripts\activate.bat
+                        call venv\\Scripts\\activate.bat
                         python -m pytest tests/
                     '''
                 }
@@ -79,8 +79,8 @@ pipeline {
             script {
                 // 清理虚拟环境
                 bat '''
-                    if exist venv\Scripts\deactivate.bat (
-                        call venv\Scripts\deactivate.bat
+                    if exist venv\\Scripts\\deactivate.bat (
+                        call venv\\Scripts\\deactivate.bat
                     )
                     rmdir /s /q venv || exit 0
                 '''
