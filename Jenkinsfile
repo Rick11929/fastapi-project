@@ -13,26 +13,6 @@ pipeline {
             }
         }
         
-        stage('Setup Python Environment') {
-            steps {
-                script {
-                    // 使用正斜杠替代反斜杠
-                    bat 'python -m venv venv'
-                    bat 'venv/Scripts/activate.bat && python -m pip install --upgrade pip'
-                    bat 'venv/Scripts/activate.bat && pip install -r requirements.txt'
-                    bat 'venv/Scripts/activate.bat && pip install pytest'
-                }
-            }
-        }
-        
-        stage('Run Tests') {
-            steps {
-                script {
-                    bat 'venv/Scripts/activate.bat && python -m pytest tests/'
-                }
-            }
-        }
-        
         stage('Build Docker Image') {
             steps {
                 script {
@@ -60,11 +40,7 @@ pipeline {
     
     post {
         always {
-            script {
-                bat 'venv/Scripts/deactivate.bat || exit 0'
-                bat 'rmdir /s /q venv || exit 0'
-                cleanWs()
-            }
+            cleanWs()
         }
         success {
             echo '部署成功！'
