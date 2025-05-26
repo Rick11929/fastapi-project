@@ -16,23 +16,11 @@ pipeline {
         stage('Setup Python Environment') {
             steps {
                 script {
-                    // 创建并激活虚拟环境
-                    bat '''
-                        python -m venv venv
-                        if not exist venv\\Scripts\\activate.bat (
-                            echo Virtual environment creation failed!
-                            exit 1
-                        )
-                        timeout /t 5
-                        call venv\\Scripts\\activate.bat
-                        if errorlevel 1 (
-                            echo Virtual environment activation failed!
-                            exit 1
-                        )
-                        python -m pip install --upgrade pip
-                        pip install -r requirements.txt
-                        pip install pytest
-                    '''
+                    // 分步执行命令以便于调试
+                    bat 'python -m venv venv'
+                    bat 'venv\Scripts\activate.bat && python -m pip install --upgrade pip'
+                    bat 'venv\Scripts\activate.bat && pip install -r requirements.txt'
+                    bat 'venv\Scripts\activate.bat && pip install pytest'
                 }
             }
         }
@@ -40,11 +28,7 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    // 使用虚拟环境运行测试
-                    bat '''
-                        call venv\\Scripts\\activate.bat
-                        python -m pytest tests/
-                    '''
+                    bat 'venv\Scripts\activate.bat && python -m pytest tests/'
                 }
             }
         }
@@ -77,13 +61,8 @@ pipeline {
     post {
         always {
             script {
-                // 清理虚拟环境
-                bat '''
-                    if exist venv\\Scripts\\deactivate.bat (
-                        call venv\\Scripts\\deactivate.bat
-                    )
-                    rmdir /s /q venv || exit 0
-                '''
+                bat 'venv\Scripts\deactivate.bat || exit 0'
+                bat 'rmdir /s /q venv || exit 0'
                 cleanWs()
             }
         }
