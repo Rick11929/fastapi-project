@@ -13,10 +13,29 @@ pipeline {
             }
         }
         
+        stage('Setup Python Environment') {
+            steps {
+                script {
+                    // 创建并激活虚拟环境
+                    bat '''
+                        python -m venv venv
+                        call venv\Scripts\activate.bat
+                        python -m pip install --upgrade pip
+                        pip install -r requirements.txt
+                        pip install pytest
+                    '''
+                }
+            }
+        }
+        
         stage('Run Tests') {
             steps {
                 script {
-                    bat 'python -m pytest tests/'
+                    // 使用虚拟环境运行测试
+                    bat '''
+                        call venv\Scripts\activate.bat
+                        python -m pytest tests/
+                    '''
                 }
             }
         }
@@ -48,7 +67,14 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            script {
+                // 清理虚拟环境
+                bat '''
+                    deactivate || exit 0
+                    rmdir /s /q venv || exit 0
+                '''
+                cleanWs()
+            }
         }
         success {
             echo '部署成功！'
