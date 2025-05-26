@@ -19,7 +19,7 @@ pipeline {
                     // 创建并激活虚拟环境
                     bat '''
                         python -m venv venv
-                        call venv\Scripts\activate.bat
+                        call venv/Scripts/activate.bat
                         python -m pip install --upgrade pip
                         pip install -r requirements.txt
                         pip install pytest
@@ -33,7 +33,7 @@ pipeline {
                 script {
                     // 使用虚拟环境运行测试
                     bat '''
-                        call venv\Scripts\activate.bat
+                        call venv/Scripts/activate.bat
                         python -m pytest tests/
                     '''
                 }
