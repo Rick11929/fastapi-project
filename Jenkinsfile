@@ -19,11 +19,19 @@ pipeline {
                     // 创建并激活虚拟环境
                     bat '''
                         python -m venv venv
-                        venv\\Scripts\\activate.bat && (
-                            python -m pip install --upgrade pip
-                            pip install -r requirements.txt
-                            pip install pytest
+                        if not exist venv\Scripts\activate.bat (
+                            echo Virtual environment creation failed!
+                            exit 1
                         )
+                        timeout /t 5
+                        call venv\Scripts\activate.bat
+                        if errorlevel 1 (
+                            echo Virtual environment activation failed!
+                            exit 1
+                        )
+                        python -m pip install --upgrade pip
+                        pip install -r requirements.txt
+                        pip install pytest
                     '''
                 }
             }
@@ -34,7 +42,8 @@ pipeline {
                 script {
                     // 使用虚拟环境运行测试
                     bat '''
-                        venv\\Scripts\\activate.bat && python -m pytest tests/
+                        call venv\Scripts\activate.bat
+                        python -m pytest tests/
                     '''
                 }
             }
@@ -70,7 +79,9 @@ pipeline {
             script {
                 // 清理虚拟环境
                 bat '''
-                    venv\\Scripts\\deactivate.bat || exit 0
+                    if exist venv\Scripts\deactivate.bat (
+                        call venv\Scripts\deactivate.bat
+                    )
                     rmdir /s /q venv || exit 0
                 '''
                 cleanWs()
